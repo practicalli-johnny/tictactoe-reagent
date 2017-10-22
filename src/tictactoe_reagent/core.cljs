@@ -20,6 +20,11 @@
   (vec (repeat dimension (vec (repeat dimension :empty)))))
 
 
+;; define your app data so that it doesn't get over-written on reload
+
+(def app-state (atom {:text "Lets Play TicTacToe"
+                          :board (game-board 3)}))
+
 (defn tictactoe-game []
   [:div
    [:h1 (:text @app-state)]
