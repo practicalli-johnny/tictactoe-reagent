@@ -2,7 +2,9 @@
     (:require [reagent.core :as reagent :refer [atom]]))
 
 (enable-console-print!)
+;; (devtools.core/set-pref! :dont-detect-custom-formatters true)
 
+;; Testing output to the web developer console in the browser
 (println "This text is printed from src/tictactoe-reagent/core.cljs. Go ahead and edit it and see reloading in action.")
 
 ;; define your app data so that it doesn't get over-written on reload
