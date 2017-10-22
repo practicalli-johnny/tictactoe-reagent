@@ -42,7 +42,9 @@
        ^{:key (str x-cell y-cell)}      ; generate a unique metadata :key for each rectangle, ie. 00, 01, 02, etc
        [:rect {:width 0.9
                :height 0.9
-               :fill "green"
+               :fill (if (= :empty (get-in @app-state [:board y-cell x-cell]))
+                       "green"
+                       "purple")
                :x x-cell
                :y y-cell
                :on-click
