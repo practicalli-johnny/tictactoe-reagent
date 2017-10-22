@@ -7,9 +7,6 @@
 ;; Testing output to the web developer console in the browser
 (println "This text is printed from src/tictactoe-reagent/core.cljs. Go ahead and edit it and see reloading in action.")
 
-;; define your app data so that it doesn't get over-written on reload
-
-(defonce app-state (atom {:text "Lets Play TicTacToe"}))
 
 (defn game-board
   "Create a data structure to represent the values of cells in the game board.
@@ -25,10 +22,35 @@
 (def app-state (atom {:text "Lets Play TicTacToe"
                           :board (game-board 3)}))
 
+#_(defn render-game-board
+  "Generate the visual representation of the board, using SVG"
+  [board]
+)
+
+
 (defn tictactoe-game []
   [:div
-   [:h1 (:text @app-state)]
-   [:p "Do you want to play a game?"]])
+   [:div
+    [:h1 (:text @app-state)]
+    [:p "Do you want to play a game?"]]
+   [:center
+    [:svg {:view-box "0 0 3 3"
+           :width 500
+           :height 500}
+     (for [x-cell (range (count (:board @app-state)))
+           y-cell (range (count (:board @app-state)))]
+       ^{:key (str x-cell y-cell)}      ; generate a unique metadata :key for each rectangle, ie. 00, 01, 02, etc
+       [:rect {:width 0.9
+               :height 0.9
+               :fill "green"
+               :x x-cell
+               :y y-cell
+               :on-click
+               (fn rectangle-click [e]
+                 (println "Cell" x-cell y-cell "was clicked!")
+                 (println
+                  (swap! app-state assoc-in [:board y-cell x-cell] :clicked)))}])]]])
+
 
 (reagent/render-component [tictactoe-game]
                           (. js/document (getElementById "app")))
@@ -45,6 +67,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; REPL Experiments
 
+;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generating a data structure to represet the game board
 
 ;; We could just hard code the board as follows, although that limits us to a specific size of board:
@@ -69,3 +92,38 @@
 ;; so lets write a game-board function.
 
 #_(println (game-board 3))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Iterate over board data structure
+
+;; Retrieve the app state by defererencing the name app-state, (dref app-state) or @app-state
+#_@app-state
+
+#_(count (:board @app-state))
+#_(range 3)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;
+;; Redering shapes with SVG
+
+#_[:svg
+   :circle {:r 30}]
+
+
+;; Warning in browser
+;; Every element in a sequence should have a unique key
+
+
+#_([:rect {:width 0.9, :height 0.9, :fill "purple", :x 0, :y 0}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 0, :y 1}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 0, :y 2}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 1, :y 0}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 1, :y 1}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 1, :y 2}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 2, :y 0}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 2, :y 1}]
+ [:rect {:width 0.9, :height 0.9, :fill "purple", :x 2, :y 2}])
+
+;; To fix this issue, add a piece of metadata to each rectangle definition
+;; ^{:key (str x-cell y-cell)}      ; generate a unique metadata :key for each rectangle, ie. 00, 01, 02, etc
