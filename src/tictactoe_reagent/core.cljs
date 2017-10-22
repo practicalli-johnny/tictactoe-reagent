@@ -13,7 +13,7 @@
 (defn hello-world []
   [:div
    [:h1 (:text @app-state)]
-   [:h3 "Edit this and watch it change!"]])
+   [:h3 "Changes in the code are loaded as soon as you save the file!"]])
 
 (reagent/render-component [hello-world]
                           (. js/document (getElementById "app")))
