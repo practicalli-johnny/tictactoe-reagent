@@ -16,11 +16,13 @@
   [dimension]
   (vec (repeat dimension (vec (repeat dimension :empty)))))
 
+;; Hard coded game board size
+(def board-dimension 3)
 
 ;; define your app data so that it doesn't get over-written on reload
 
 (def app-state (atom {:text "Lets Play TicTacToe"
-                          :board (game-board 3)}))
+                      :board (game-board board-dimension)}))
 
 (defn cell-empty
   "Generate a cell that has not yet been clicked on"
@@ -65,6 +67,9 @@
    [:div
     [:h1 (:text @app-state)]
     [:p "Do you want to play a game?"]]
+   [:button {:on-click (fn new-game-click [e]
+                           (swap! app-state assoc :board (game-board board-dimension)))}
+    "Start a new game"]
    [:center
     [:svg {:view-box "0 0 3 3"
            :width 500
