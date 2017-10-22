@@ -22,10 +22,42 @@
 (def app-state (atom {:text "Lets Play TicTacToe"
                           :board (game-board 3)}))
 
-#_(defn render-game-board
-  "Generate the visual representation of the board, using SVG"
-  [board]
-)
+(defn cell-empty
+  "Generate a cell that has not yet been clicked on"
+  [x-cell y-cell]
+  [:rect {:width 0.9
+          :height 0.9
+          :fill "grey"
+          :x x-cell
+          :y y-cell
+          :on-click
+          (fn rectangle-click [e]
+            (println "Cell" x-cell y-cell "was clicked!")
+            (println
+             (swap! app-state assoc-in [:board y-cell x-cell] :cross)))}])
+
+
+(defn cell-nought
+  "A cell with a nought inside it"
+  [x-cell y-cell]
+  ^{:key (str x-cell y-cell)}
+  [:circle {:r 0.42
+            :fill "green"
+            :cx (+ 0.42 x-cell)
+            :cy (+ 0.42 y-cell)}])
+
+
+(defn cell-cross
+  "A cell with a cross inside it"
+[x-cell y-cell]
+  [:g {:stroke "purple"
+       :stroke-width 0.4
+       :stroke-linecap "round"
+       :transform
+       (str "translate(" (+ 0.42 x-cell) "," (+ 0.42 y-cell) ") "
+            "scale(0.3)")}
+   [:line {:x1 -1 :y1 -1 :x2 1 :y2 1}]
+   [:line {:x1 1 :y1 -1 :x2 -1 :y2 1}]])
 
 
 (defn tictactoe-game []
@@ -39,19 +71,11 @@
            :height 500}
      (for [x-cell (range (count (:board @app-state)))
            y-cell (range (count (:board @app-state)))]
-       ^{:key (str x-cell y-cell)}      ; generate a unique metadata :key for each rectangle, ie. 00, 01, 02, etc
-       [:rect {:width 0.9
-               :height 0.9
-               :fill (if (= :empty (get-in @app-state [:board y-cell x-cell]))
-                       "green"
-                       "purple")
-               :x x-cell
-               :y y-cell
-               :on-click
-               (fn rectangle-click [e]
-                 (println "Cell" x-cell y-cell "was clicked!")
-                 (println
-                  (swap! app-state assoc-in [:board y-cell x-cell] :clicked)))}])]]])
+       (case (get-in @app-state [:board y-cell x-cell])
+         :empty [cell-empty x-cell y-cell]
+         :cross [cell-cross x-cell y-cell]
+         :nought [cell-nought x-cell y-cell])
+       )]]])
 
 
 (reagent/render-component [tictactoe-game]
