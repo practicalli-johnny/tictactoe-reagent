@@ -7,15 +7,16 @@
 
 ;; define your app data so that it doesn't get over-written on reload
 
-(defonce app-state (atom {:text "Hello world!"}))
+(defonce app-state (atom {:text "Lets Play TicTacToe"}))
 
 
-(defn hello-world []
+
+(defn tictactoe-game []
   [:div
    [:h1 (:text @app-state)]
-   [:h3 "Changes in the code are loaded as soon as you save the file!"]])
+   [:p "Do you want to play a game?"]])
 
-(reagent/render-component [hello-world]
+(reagent/render-component [tictactoe-game]
                           (. js/document (getElementById "app")))
 
 (defn on-js-reload []
