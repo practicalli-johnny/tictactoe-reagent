@@ -163,3 +163,141 @@
 
 ;; To fix this issue, add a piece of metadata to each rectangle definition
 ;; ^{:key (str x-cell y-cell)}      ; generate a unique metadata :key for each rectangle, ie. 00, 01, 02, etc
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Testing the Game Board
+
+;; As we drive the board by changes in the app-state, we can test by simply updating the app-state directly
+
+;; To stop the REPL from running all these app-state updates, we comment them out with the reader macro #_ as it will ignore the next expression (so we dont need to comment out each line)
+
+;; Nought winner - center column
+#_(swap! app-state assoc :board
+         [[:cross :nought :empty]
+          [:empty :nought :empty]
+          [:cross :nought :empty]])
+
+#_(swap! app-state assoc :board
+         [[:cross :nought :nought]
+          [:empty :cross :empty]
+          [:cross :nought :cross]])
+
+;; Reset board by setting all cell values back to :empty
+#_(reset! app-state {:text "Lets Play TicTacToe"
+                   :board (game-board board-dimension)})
+
+(defn set-game-board! [game-board-state]
+  (swap! app-state assoc :board game-board-state))
+
+;; A reset function is a nice helper function for development
+;; To reset the game board simply call this function any time
+(defn reset-game-board!
+  "Resets the app-state to an empty game board"
+  []
+  (reset! app-state {:text "Lets Play TicTacToe"
+                     :board (game-board board-dimension)}))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Determine winner by pattern matching
+
+;; As there are only 8 winning combinations, we could just create a pattern for each win
+;; As the patterns are the same for :nought and :cross we could just compare that each value is equal
+
+;; For just a row we can compare the values in the vector with each other
+
+#_(apply = [:empty :empty :empty])
+
+#_(apply = [:cross :cross :cross])
+
+#_(apply = [:nought :nought :nought])
+#_(apply = [:empty :cross :empty])
+;; => false
+
+#_(apply = [:cross :nought :empty])
+
+;; However, this approach also matches an :empty row or column
+
+;; Using an anonymous function over the collection allows us to compare each value,
+;; if all values are not= :empty then we can return true
+#_(apply  (fn [cell-value] (not= :empty cell-value))[:empty :cross :cross])
+
+;; As we will probably call this multiple times, lets convert it into a named function.
+(defn cell-empty?
+  [cell-value] (not= :empty cell-value))
+
+;; Hmm, still not idea, as any combination that does not contain :empty will return true
+#_(cell-empty? [[:cross :nought :cross]])
+
+;; Applying both checks will give the right results
+
+(defn winning-line? [cell-row]
+  (and
+   (apply = cell-row)
+   (apply cell-empty? cell-row)))
+
+#_(winning-line? [:cross :cross :cross])
+;; => true
+
+#_(winning-line? [:nought :nought :nought])
+;; => true
+
+#_(winning-line? [:cross :nought :cross])
+;; => false
+
+#_(winning-line? [:empty :empty :empty])
+;; => false
+
+#_(winning-line? [:empty :nought :cross])
+;; => false
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Pattern matching diagonals
+
+#_(= [:cross :cross :cross] [:cross :cross :cross])
+
+(def board-of-crosses   [[:cross :cross :cross]
+                         [:cross :cross :cross]
+                         [:cross :cross :cross]])
+
+(def board-of-stalemate [[:cross :cross :nought]
+                         [:nought :nought :cross]
+                         [:cross :cross :nought]])
+
+#_(=  [[:cross :cross :cross] [:cross :cross :cross] [:cross :cross :cross]]
+    [[:cross :cross :cross] [:cross :cross :cross] [:cross :cross :cross]])
+;; => true
+
+#_(=  [[:cross :cross :cross] [:cross :cross :cross] [:cross :cross :cross]]
+    [[:cross :cross :cross] [:cross :cross :cross] [:cross :cross :nought]])
+
+#_(=
+    [[:cross :cross :cross] [:cross :cross :cross] [:cross :cross :cross]]
+    [[:cross _ _] [_ :cross _] [_ _ :cross]])
+
+
+;; Using destructuring we can just look at the values we are interested in
+;; The let destructuring pattern pulls out the values for the diagonal line,
+;; from top left to bottom right
+(let [[[cell-00 _ _][_ cell-11 _][_ _ cell-22]] board-of-crosses]
+  (= cell-00 cell-11 cell-22))
+;; => true
+
+(let [[[cell-00 _ _][_ cell-11 _][_ _ cell-22]] board-of-stalemate]
+  (println cell-00 ":" cell-11 ":" cell-22)
+  (= cell-00 cell-11 cell-22))
+;; => false
+
+;; Not sure naming these patterns with a def is that useful
+;; Not this way, as its not correct clojure (names are not defined)
+;; Should create two functions instead
+#_(def diagonal-row--top-left-to-bottom-right
+  [[cell-00 _ _]
+   [_ cell-11 _]
+   [_ _ cell-22]])
+
+#_(def diagonal-row--top-right-to-bottom-left
+  [[_ _ cell-02]
+   [_ cell-11 _]
+   [cell-20_ _]])
