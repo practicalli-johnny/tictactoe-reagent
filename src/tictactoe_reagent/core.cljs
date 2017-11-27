@@ -8,6 +8,10 @@
 (println "This text is printed from src/tictactoe-reagent/core.cljs. Go ahead and edit it and see reloading in action.")
 
 
+;; Hard coded game board size
+;; As the game board is square, we only use one value for height and width
+(def board-dimension 3)
+
 (defn game-board
   "Create a data structure to represent the values of cells in the game board.
   A vector is used to hold the overall game board
@@ -16,17 +20,16 @@
   [dimension]
   (vec (repeat dimension (vec (repeat dimension :empty)))))
 
-;; Hard coded game board size
-(def board-dimension 3)
 
 ;; define your app data so that it doesn't get over-written on reload
 
-(def app-state (atom {:text "Lets Play TicTacToe"
+(defonce app-state (atom {:text "Lets Play TicTacToe"
                       :board (game-board board-dimension)}))
 
 (defn cell-empty
   "Generate a cell that has not yet been clicked on"
   [x-cell y-cell]
+  ^{:key (str x-cell y-cell)}
   [:rect {:width 0.9
           :height 0.9
           :fill "grey"
@@ -52,6 +55,7 @@
 (defn cell-cross
   "A cell with a cross inside it"
 [x-cell y-cell]
+  ^{:key (str x-cell y-cell)}
   [:g {:stroke "purple"
        :stroke-width 0.4
        :stroke-linecap "round"
@@ -79,8 +83,7 @@
        (case (get-in @app-state [:board y-cell x-cell])
          :empty [cell-empty x-cell y-cell]
          :cross [cell-cross x-cell y-cell]
-         :nought [cell-nought x-cell y-cell])
-       )]]])
+         :nought [cell-nought x-cell y-cell]))]]])
 
 
 (reagent/render-component [tictactoe-game]
