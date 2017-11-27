@@ -46,8 +46,10 @@
   "A cell with a nought inside it"
   [x-cell y-cell]
   ^{:key (str x-cell y-cell)}
-  [:circle {:r 0.42
-            :fill "green"
+  [:circle {:r 0.36
+            :fill "white"
+            :stroke "green"
+            :stroke-width 0.1
             :cx (+ 0.42 x-cell)
             :cy (+ 0.42 y-cell)}])
 
