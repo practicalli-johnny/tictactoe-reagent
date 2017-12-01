@@ -308,3 +308,106 @@
   [[_ _ cell-02]
    [_ cell-11 _]
    [cell-20_ _]])
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Computer moves
+
+;; A sample game board
+(def game-board-example-mid-game [[:cross :nought :empty]
+                                  [:empty :nought :empty]
+                                  [:cross :nought :empty]])
+
+;; Is a cell empty?
+(= :empty (get-in game-board-example-mid-game [1 0]))
+;; => true
+
+(= :empty (get-in game-board-example-mid-game [0 2]))
+;; => true
+
+
+;; lets get the co-ordinates for all the cells on the board that are empty,
+;; so we know which cells are available
+
+#_(for [row    (range board-dimension)
+        column (range board-dimension)
+        :when  (= :empty
+                  (get-in game-board-example-mid-game [row column]))]
+    [row column])
+;; => ([0 2] [1 0] [1 2] [2 2])
+
+
+
+;; the same approach, but assigning it to a local name with let,
+;; so we can do more with the result
+
+#_(let [available-cells (for [row    (range 3)
+                        column (range 3)
+                        :when (= :empty
+                                 (get-in game-board-example-mid-game [row column]))]
+                    [row column])]
+  available-cells)
+;; => ([0 2] [1 0] [1 2] [2 2])
+
+
+
+#_(let [available-cells
+        (for [row    (range board-dimension)
+              column (range board-dimension)
+              :when (=
+                     (get-in game-board-example-mid-game [column row])
+                     :empty)]
+         [column row])]
+       available-cells)
+;; => ([1 0] [0 2] [1 2] [2 2])
+
+
+;; Check to see if we got any empty cells
+
+;; We can check with empty?
+#_(empty? '([0 2] [1 0] [1 2] [2 2]))
+
+;; and therefore check if there are positions with
+#_(not (empty? '([0 2] [1 0] [1 2] [2 2])))
+
+;; However there is a Clojure idiom to use seq (mentioned in the docs for empty?)
+
+#_(seq '([0 2] [1 0] [1 2] [2 2]))
+;; => ([0 2] [1 0] [1 2] [2 2])
+
+#_(seq '())
+;; => nil
+
+;; So with seq if there are empty cells, those values are returned, otherwise `nil` is returned (which is falsey)
+
+;; To get one of the co-ordinates assuming there are available cells, we can use rand-nth
+#_(rand-nth '([0 2] [1 0] [1 2] [2 2]))
+;; => [0 2]
+
+
+;; putting seq and rand-nth together we can get one of the available positions
+
+(def available-cells-example '([1 0] [0 2] [1 2] [2 2]))
+
+#_(when (seq available-cells-example)
+  (rand-nth available-cells-example))
+;; => [1 2]
+
+
+;; The computer can now make moves until no more cells are available
+#_(let [available-cells
+       (for [row    (range board-dimension)
+             column (range board-dimension)
+             :when (=
+                    :empty
+                    (get-in game-board-example-mid-game [column row]))]
+          [column row])
+
+      next-move (when (seq available-cells)
+                  (rand-nth available-cells))]
+
+  (if next-move
+    (str "update app-state")
+    (str "display messages saying no more moves")))
+;; => "update app-state"
