@@ -29,7 +29,8 @@
 (defn computer-move
   "Takes a turn for the computer, adding an X shape to the board"
   []
-  (swap! app-state assoc-in [:board 0 0] :cross))
+  (prn "Computer moved: added cross to 1 1")
+  (swap! app-state assoc-in [:board 1 1] :cross))
 
 
 (defn cell-empty
@@ -43,9 +44,8 @@
           :y y-cell
           :on-click
           (fn rectangle-click [e]
-            (println "Cell" x-cell y-cell "was clicked!")
-            (println
-             (swap! app-state assoc-in [:board y-cell x-cell] :nought))
+            (prn "Human player moved:" x-cell y-cell "was clicked!")
+            (swap! app-state assoc-in [:board y-cell x-cell] :nought)
             (computer-move))}])
 
 
@@ -102,7 +102,7 @@
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
-)
+  (prn "Game board state:" (@app-state :board)))
 
 
 
