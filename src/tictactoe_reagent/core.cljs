@@ -26,6 +26,12 @@
 (defonce app-state (atom {:text "Lets Play TicTacToe"
                       :board (game-board board-dimension)}))
 
+(defn computer-move
+  "Takes a turn for the computer, adding an X shape to the board"
+  []
+  (swap! app-state assoc-in [:board 0 0] :cross))
+
+
 (defn cell-empty
   "Generate a cell that has not yet been clicked on"
   [x-cell y-cell]
@@ -39,7 +45,8 @@
           (fn rectangle-click [e]
             (println "Cell" x-cell y-cell "was clicked!")
             (println
-             (swap! app-state assoc-in [:board y-cell x-cell] :cross)))}])
+             (swap! app-state assoc-in [:board y-cell x-cell] :nought))
+            (computer-move))}])
 
 
 (defn cell-nought
